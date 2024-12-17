@@ -13,6 +13,7 @@ const loadMoreBtn = document.querySelector('.btn-load');
 let currentPage = 1;
 let inputValue = '';
 let totalHits = 0;
+const PER_PAGE = 15;
 
 loader.style.display = 'none';
 loadMoreBtn.style.display = 'none';
@@ -41,6 +42,7 @@ async function onSearch(event) {
     const data = await fetchImages(inputValue, currentPage);
     totalHits = data.totalHits;
 
+
     if (!data.hits.length) {
       iziToast.error({
         title: 'Error',
@@ -48,7 +50,10 @@ async function onSearch(event) {
       });
     } else {
       renderImages(data.hits);
-      loadMoreBtn.style.display = "block";
+      
+      if (totalHits > PER_PAGE) {
+        loadMoreBtn.style.display = 'block';
+      }
     }
   } catch (error) {
     iziToast.error({
@@ -68,13 +73,17 @@ async function onLoadMore() {
     const data = await fetchImages(inputValue, currentPage);
     renderImages(data.hits);
 
-    if (currentPage * 15 >= totalHits) {
+    const totalLoadedImages = currentPage * PER_PAGE;
+
+    if (totalLoadedImages >= totalHits) {  
       loadMoreBtn.style.display = 'none';
       iziToast.info({
         title: 'Info',
-        message: "We're sorry, but you've reached the end of search results."
+        message: "We're sorry, but you've reached the end of search results.",
       });
     }
+
+
 
     smoothScroll();
   } catch (error) {
